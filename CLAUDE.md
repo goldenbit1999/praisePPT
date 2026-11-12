@@ -11,9 +11,9 @@ The user normally provides the ordered song list after a meeting. The supporting
 
 ## Use the project skill
 
-For weekly deck creation or related maintenance, read and follow:
+For weekly deck creation or related maintenance, invoke the `weekly-praise-ppt` skill (`/weekly-praise-ppt`), defined at:
 
-'.codex/skills/weekly-praise-ppt/SKILL.md'
+'.claude/skills/weekly-praise-ppt/SKILL.md'
 
 That skill is the authoritative workflow for this repository.
 
