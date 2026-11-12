@@ -1,10 +1,16 @@
 """Build one weekly praise deck from numbered bilingual lyric text files.
 
+Usage (from praisePPT/):
+    ../venv/Scripts/python.exe generate_weekly_praise.py YYYYMMDD
+
+YYYYMMDD is the date in this week's 간사모임 source filename. The deck is
+saved as YYYYMMDD_간사모임_악보.pptx.
+
 Input files are discovered in filename order:
     01_*.txt, 02_*.txt, 03_*.txt, ...
 
 The first blank-line-separated block in each file is the song title:
-    Korean title (key)
+    Korean title (no key such as "(G)")
     English title
 
 Every following block becomes one lyric slide.
@@ -12,6 +18,7 @@ Every following block becomes one lyric slide.
 
 from pathlib import Path
 import re
+import sys
 
 from pptx import Presentation
 from pptx.util import Inches, Pt
@@ -22,7 +29,6 @@ from pptx.dml.color import RGBColor
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_FILE = BASE_DIR / "template.pptx"
 COMBINED_FILE = BASE_DIR / "weekly_lyrics_mixed.txt"
-OUTPUT_FILE = BASE_DIR / "weekly_praise.pptx"
 
 
 def add_empty_slide(prs):
@@ -85,6 +91,10 @@ def add_lyric_slide(prs, lines):
 
 
 def main():
+    if len(sys.argv) != 2 or not re.fullmatch(r"\d{8}", sys.argv[1]):
+        sys.exit("Usage: generate_weekly_praise.py YYYYMMDD (date from the 간사모임 source filename)")
+    output_file = BASE_DIR / f"{sys.argv[1]}_간사모임_악보.pptx"
+
     song_files = sorted(BASE_DIR.glob("[0-9][0-9]_*.txt"))
     if not song_files:
         raise FileNotFoundError("No numbered song files were found.")
@@ -108,8 +118,8 @@ def main():
                 [line.strip() for line in block.splitlines() if line.strip()],
             )
 
-    prs.save(OUTPUT_FILE)
-    print(f"Created: {OUTPUT_FILE}")
+    prs.save(output_file)
+    print(f"Created: {output_file}")
 
 
 if __name__ == "__main__":

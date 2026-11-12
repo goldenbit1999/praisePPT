@@ -13,7 +13,10 @@ Use this skill when the user asks to prepare the weekly praise deck in this repo
 - Treat the user's song list as authoritative for song order, displayed titles, English titles, and keys.
 - Do not modify source files in '간사모임/'.
 - Use 'praisePPT/template.pptx' and 'praisePPT/generate_weekly_praise.py'.
-- Preserve the user's current 'praisePPT/weekly_praise.pptx' unless the request authorizes regenerating it.
+- Preserve the user's current dated deck ('praisePPT/YYYYMMDD_간사모임_악보.pptx') unless the request authorizes regenerating it.
+- The top of 'praisePPT/' holds only the generator, template, dependency file, and the current week's set. Past weeks live in 'praisePPT/archive/YYYYMMDD/', one folder per week.
+- Keep verification artifacts (rendered slide images, OCR output, helper package installs) in a temporary directory outside the repository.
+- If the deck is open in PowerPoint (a '~$' lock file sits next to it), ask the user to close it before regenerating. Never force-close PowerPoint.
 
 ## Workflow
 
@@ -23,16 +26,25 @@ Use this skill when the user asks to prepare the weekly praise deck in this repo
    - Inspect image-only score pages visually or with OCR when necessary.
    - Use a web source only to fill or verify missing text, and reconcile it with the supplied score.
 3. Pair Korean and English by meaning and performance order.
-4. Create numbered UTF-8 files in 'praisePPT/', such as '01_song-name.txt'.
+4. Before writing the new song files, archive the previous week's set:
+   - The previous set is what sits at the top of 'praisePPT/': its numbered TXT files, 'weekly_lyrics_mixed.txt', and its dated deck 'YYYYMMDD_간사모임_악보.pptx'.
+   - Move the whole set into 'praisePPT/archive/YYYYMMDD/', named with that previous deck's date. Use 'git mv' for tracked files. Never delete past outputs.
+   - If the existing deck already has this week's date, this is a rework of the same week: do not archive; replace the TXT files in place and keep the user's manual deck edits unless regenerating is authorized.
+   - If the previous week's date cannot be determined, ask the user.
+5. Create numbered UTF-8 files in 'praisePPT/', such as '01_song-name.txt'.
    - The first block is the title slide: Korean title, then English title.
+   - Never include the song key, such as '(G)', in either title line, even when the song list or score gives one.
    - Each following block is one lyric slide.
    - Separate blocks with one blank line.
    - Prefer two Korean lines followed by their two English lines per lyric slide.
    - Shorten the grouping before reducing font size.
-5. Remove or replace numbered song TXT files from the prior week only when generating a newly authorized weekly deck.
 6. From 'praisePPT/', run:
 
-   '../venv/Scripts/python.exe generate_weekly_praise.py'
+   '../venv/Scripts/python.exe generate_weekly_praise.py YYYYMMDD'
+
+   - Take YYYYMMDD from the date in this week's '간사모임/' source filename, normalized from any format (for example, 'DTS Staff Setlist 2026.11.14.pdf' gives '20261114'; '20261010_간사모임_악보.pptx' gives '20261010').
+   - The deck is saved as 'praisePPT/YYYYMMDD_간사모임_악보.pptx'.
+   - If the source filename has no date, or this week's files disagree, ask the user.
 
 7. Verify:
    - Song order matches the user's list.
@@ -50,7 +62,7 @@ Use this skill when the user asks to prepare the weekly praise deck in this repo
 
 ## Deliverables
 
-- 'praisePPT/weekly_praise.pptx'
+- 'praisePPT/YYYYMMDD_간사모임_악보.pptx', dated from this week's '간사모임/' source filename
 - Numbered per-song bilingual TXT files used to reproduce it
 - 'praisePPT/weekly_lyrics_mixed.txt', generated as a convenient combined intermediate
 
